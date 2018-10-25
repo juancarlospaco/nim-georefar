@@ -12,7 +12,7 @@ así como ubicar coordenadas dentro de ellas.
 # Uso
 
 ```nim
-import georefar
+import georefar, json
 
 ## Sync client.
 let georefar_client = GeoRefAr(timeout: 9)  # Timeout en Segundos.
