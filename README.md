@@ -3,6 +3,11 @@
 [GeoRef Argentina](https://georef-ar-api.readthedocs.io) MultiSync API Lib for [Nim](https://nim-lang.org)
 *(All Docs on Spanish because its for Argentina)*
 
+La API del Servicio de Normalizacion de Datos Geograficos, permite normalizar y
+codificar los nombres de unidades territoriales de la Argentina
+(provincias, departamentos, municipios y localidades) y de sus calles,
+así como ubicar coordenadas dentro de ellas.
+
 
 # Uso
 

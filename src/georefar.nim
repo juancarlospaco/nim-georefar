@@ -6,9 +6,12 @@
 ##   <video src="argentina.mp4" muted autoplay loop width=300 height=400 ></video>
 import asyncdispatch, httpclient, json
 
-const georefar_api_url* =
-  when defined(ssl): "https://apis.datos.gob.ar/georef/api/" ## Base API URL for all API calls (SSL).
-  else: "http://apis.datos.gob.ar/georef/api/" ## Base API URL for all API calls (No SSL).
+const
+  georefar_api_url* =
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/" ## Base API URL for all API calls (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/" ## Base API URL for all API calls (No SSL).
+  header_api_data = {"dnt": "1", "accept": "application/vnd.api+json", "content-type": "application/vnd.api+json"}
+let json_api_headers = newHttpHeaders(header_api_data) ## HTTP Headers for JSON APIs.
 
 type
   GeoRefArBase*[HttpType] = object  ## Base Object
@@ -17,12 +20,18 @@ type
   GeoRefAr* = GeoRefArBase[HttpClient]           ## GeoRefAr API  Sync Client.
   AsyncGeoRefAr* = GeoRefArBase[AsyncHttpClient] ## GeoRefAr API Async Client.
 
+template proxi(this: untyped): untyped =
+  ## Template to use Proxy when its declared.
+  when declared(this.proxy): this.proxy else: nil
+
 proc apicall(this: GeoRefAr | AsyncGeoRefAr, api_url: string, cueri: JsonNode): Future[JsonNode] {.multisync.} =
+  let client =
+    when this is AsyncGeoRefAr: newAsyncHttpClient(proxy=proxi(this))
+    else: newHttpClient(timeout=this.timeout.int * 1000, proxy=proxi(this))
+  client.headers = json_api_headers
   let response =
-     when this is AsyncGeoRefAr:
-       await newAsyncHttpClient(proxy = when declared(this.proxy): this.proxy else: nil).post(api_url, body = $cueri)
-     else:
-       newHttpClient(timeout=this.timeout.int * 1000, proxy = when declared(this.proxy): this.proxy else: nil ).post(api_url, body = $cueri)
+    when this is AsyncGeoRefAr: await client.post(api_url, body = $cueri)
+    else: client.post(api_url, body = $cueri)
   result = parseJson(await response.body)
 
 proc provincias*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
@@ -64,15 +73,7 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
   var consulta = %* {
     "provincias": [
       {
-        "id": "string",
-        "nombre": "string",
-        "interseccion": "provincia:82,departamento:82084,municipio:820196",
-        "orden": "id",
-        "aplanar": true,
-        "campos": "id,nombre",
-        "max": 10,
-        "inicio": 10,
-        "exacto": true
+        "id": "82"
       }
     ]
   }
@@ -81,16 +82,7 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
   consulta = %* {
     "departamentos": [
       {
-        "id": "string",
-        "nombre": "string",
-        "provincia": "Santa Fe",
-        "interseccion": "provincia:82,departamento:82084,municipio:820196",
-        "orden": "id",
-        "aplanar": true,
-        "campos": "id,nombre",
-        "max": 10,
-        "inicio": 10,
-        "exacto": true
+        "provincia": "Santa Fe"
       }
     ]
   }
@@ -99,16 +91,7 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
   consulta = %* {
     "municipios": [
       {
-        "id": "string",
-        "nombre": "string",
-        "provincia": "Santa Fe",
-        "interseccion": "provincia:82,departamento:82084,municipio:820196",
-        "orden": "id",
-        "aplanar": true,
-        "campos": "id,nombre",
-        "max": 10,
-        "inicio": 10,
-        "exacto": true
+        "provincia": "Santa Fe"
       }
     ]
   }
@@ -117,17 +100,9 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
   consulta = %* {
     "localidades": [
       {
-        "id": "string",
-        "nombre": "string",
         "provincia": "Santa Fe",
         "departamento": "Rosario",
-        "municipio": "Granadero Baigorria",
-        "orden": "id",
-        "aplanar": true,
-        "campos": "id,nombre",
-        "max": 10,
-        "inicio": 10,
-        "exacto": true
+        "municipio": "Granadero Baigorria"
       }
     ]
   }
@@ -136,17 +111,8 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
   consulta = %* {
     "calles": [
       {
-        "id": "string",
-        "nombre": "string",
-        "tipo": "calle",
         "provincia": "Santa Fe",
-        "departamento": "Rosario",
-        "orden": "id",
-        "aplanar": true,
-        "campos": "id,nombre",
-        "max": 10,
-        "inicio": 10,
-        "exacto": true
+        "departamento": "Rosario"
       }
     ]
   }
@@ -158,25 +124,17 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
         "direccion": "Urquiza 400",
         "tipo": "calle",
         "provincia": "Santa Fe",
-        "departamento": "Rosario",
-        "orden": "id",
-        "aplanar": true,
-        "campos": "id,nombre",
-        "max": 10,
-        "inicio": 10,
-        "exacto": true
+        "departamento": "Rosario"
       }
     ]
   }
   echo georefar_client.direcciones(consulta).pretty
 
-  consulta = %*{
+  consulta = %* {
     "ubicaciones": [
       {
         "lat": -32.8551545,
-        "lon": -60.697636,
-        "aplanar": true,
-        "campos": "id,nombre"
+        "lon": -60.697636
       }
     ]
   }
@@ -187,6 +145,6 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
     let
       async_georefar_client = AsyncGeoRefAr(timeout: 9)
       async_response = await async_georefar_client.ubicacion(consulta)
-    echo $async_response
+    echo async_response.pretty
 
   wait_for async_georefar()
