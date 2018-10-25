@@ -20,15 +20,7 @@ let georefar_client = GeoRefAr(timeout: 9)  # Timeout en Segundos.
 var consulta = %* {
   "provincias": [
     {
-      "id": "string",
-      "nombre": "string",
-      "interseccion": "provincia:82,departamento:82084,municipio:820196",
-      "orden": "id",
-      "aplanar": true,
-      "campos": "id,nombre",
-      "max": 10,
-      "inicio": 10,
-      "exacto": true
+      "id": "82"
     }
   ]
 }
@@ -37,16 +29,7 @@ echo georefar_client.provincias(consulta).pretty
 consulta = %* {
   "departamentos": [
     {
-      "id": "string",
-      "nombre": "string",
-      "provincia": "Santa Fe",
-      "interseccion": "provincia:82,departamento:82084,municipio:820196",
-      "orden": "id",
-      "aplanar": true,
-      "campos": "id,nombre",
-      "max": 10,
-      "inicio": 10,
-      "exacto": true
+      "provincia": "Santa Fe"
     }
   ]
 }
@@ -55,16 +38,7 @@ echo georefar_client.departamentos(consulta).pretty
 consulta = %* {
   "municipios": [
     {
-      "id": "string",
-      "nombre": "string",
-      "provincia": "Santa Fe",
-      "interseccion": "provincia:82,departamento:82084,municipio:820196",
-      "orden": "id",
-      "aplanar": true,
-      "campos": "id,nombre",
-      "max": 10,
-      "inicio": 10,
-      "exacto": true
+      "provincia": "Santa Fe"
     }
   ]
 }
@@ -73,17 +47,9 @@ echo georefar_client.municipios(consulta).pretty
 consulta = %* {
   "localidades": [
     {
-      "id": "string",
-      "nombre": "string",
       "provincia": "Santa Fe",
       "departamento": "Rosario",
-      "municipio": "Granadero Baigorria",
-      "orden": "id",
-      "aplanar": true,
-      "campos": "id,nombre",
-      "max": 10,
-      "inicio": 10,
-      "exacto": true
+      "municipio": "Granadero Baigorria"
     }
   ]
 }
@@ -92,17 +58,8 @@ echo georefar_client.localidades(consulta).pretty
 consulta = %* {
   "calles": [
     {
-      "id": "string",
-      "nombre": "string",
-      "tipo": "calle",
       "provincia": "Santa Fe",
-      "departamento": "Rosario",
-      "orden": "id",
-      "aplanar": true,
-      "campos": "id,nombre",
-      "max": 10,
-      "inicio": 10,
-      "exacto": true
+      "departamento": "Rosario"
     }
   ]
 }
@@ -114,25 +71,17 @@ consulta = %* {
       "direccion": "Urquiza 400",
       "tipo": "calle",
       "provincia": "Santa Fe",
-      "departamento": "Rosario",
-      "orden": "id",
-      "aplanar": true,
-      "campos": "id,nombre",
-      "max": 10,
-      "inicio": 10,
-      "exacto": true
+      "departamento": "Rosario"
     }
   ]
 }
 echo georefar_client.direcciones(consulta).pretty
 
-consulta = %*{
+consulta = %* {
   "ubicaciones": [
     {
       "lat": -32.8551545,
-      "lon": -60.697636,
-      "aplanar": true,
-      "campos": "id,nombre"
+      "lon": -60.697636
     }
   ]
 }
@@ -143,7 +92,7 @@ proc async_georefar() {.async.} =
   let
     async_georefar_client = AsyncGeoRefAr(timeout: 9)
     async_response = await async_georefar_client.ubicacion(consulta)
-  echo $async_response
+  echo async_response.pretty
 
 wait_for async_georefar()
 
