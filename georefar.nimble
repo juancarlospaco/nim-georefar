@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.1.5"
 author        = "Juan Carlos"
 description   = "GeoRef Argentina Government MultiSync API Client for Nim"
 license       = "MIT"

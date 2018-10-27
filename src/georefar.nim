@@ -65,6 +65,7 @@ proc ubicacion*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNod
 
 
 
+# De aca para abajo ya es codigo opcional, es solo para ejemplos, doc, etc.
 runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documentacion.
   import asyncdispatch, json
   ## Sync client.
@@ -148,3 +149,34 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
     echo async_response.pretty
 
   wait_for async_georefar()
+
+
+when is_main_module and defined(release):
+  import parseopt, terminal, random
+  var endpoint: string
+  for tipoDeClave, clave, valor in getopt():
+    case tipoDeClave
+    of cmdShortOption, cmdLongOption:
+      case clave
+      of "version":             quit("0.1.0", 0)
+      of "license", "licencia": quit("MIT", 0)
+      of "help", "ayuda":       quit("""georefar --color --provincias '{"provincias": [{"id": "82"}]}'""", 0)
+      of "provincias", "departamentos", "municipios", "localidades", "calles", "direcciones", "ubicacion":
+        endpoint = clave
+      of "color":
+        randomize()
+        setBackgroundColor(bgBlack)
+        setForegroundColor([fgRed, fgGreen, fgYellow, fgBlue, fgMagenta, fgCyan, fgWhite].rand)
+    of cmdArgument:
+      let clientito = GeoRefAr(timeout: 99)
+      case endpoint
+      of "provincias":    echo clientito.provincias(parse_json(clave)).pretty
+      of "departamentos": echo clientito.departamentos(parse_json(clave)).pretty
+      of "municipios":    echo clientito.municipios(parse_json(clave)).pretty
+      of "localidades":   echo clientito.localidades(parse_json(clave)).pretty
+      of "calles":        echo clientito.calles(parse_json(clave)).pretty
+      of "direcciones":   echo clientito.direcciones(parse_json(clave)).pretty
+      of "ubicacion":     echo clientito.ubicacion(parse_json(clave)).pretty
+      else: quit("""Parametro a buscar debe ser alguno de los endpoint de la API:
+      provincias,departamentos,municipios,localidades,calles,direcciones,ubicacion""", 1)
+    of cmdEnd: quit("Los Parametros son incorrectos, ver Ayuda con --ayuda", 1)
