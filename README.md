@@ -6,7 +6,16 @@
 La API del Servicio de Normalizacion de Datos Geograficos, permite normalizar y
 codificar los nombres de unidades territoriales de la Argentina
 (provincias, departamentos, municipios y localidades) y de sus calles,
-así como ubicar coordenadas dentro de ellas.
+asi como ubicar coordenadas dentro de ellas.
+
+<video src="argentina.mp4" muted autoplay loop width=300 height=400 ></video>
+
+
+# Instalar
+
+```
+nimble install georefar
+```
 
 
 # Uso
