@@ -8,8 +8,6 @@ codificar los nombres de unidades territoriales de la Argentina
 (provincias, departamentos, municipios y localidades) y de sus calles,
 asi como ubicar coordenadas dentro de ellas.
 
-<video src="argentina.mp4" muted autoplay loop width=300 height=400 ></video>
-
 
 # Instalar
 
