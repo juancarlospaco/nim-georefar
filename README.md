@@ -8,6 +8,10 @@ codificar los nombres de unidades territoriales de la Argentina
 (provincias, departamentos, municipios y localidades) y de sus calles,
 asi como ubicar coordenadas dentro de ellas.
 
+Este Cliente es Async y Sync al mismo tiempo, es MultiPlataforma, MultiArquitectura,
+0 Dependencias, 1 Archivo solo, ~250 Kilobytes Compilado, muy poco uso de RAM.
+Soporta Proxy, IPv6, SSL y Timeout. Auto-Documentado.
+
 
 # Instalar
 
