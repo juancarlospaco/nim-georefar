@@ -10,6 +10,21 @@ const
   georefar_api_url* =
     when defined(ssl): "https://apis.datos.gob.ar/georef/api/" ## Base API URL for all API calls (SSL).
     else: "http://apis.datos.gob.ar/georef/api/" ## Base API URL for all API calls (No SSL).
+  georefar_provincias_dataset* =
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/provincias.json" ## Dataset de Provincias (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/provincias.json" ## Dataset de Provincias (No SSL).
+  georefar_departamentos_dataset* =
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/departamentos.json" ## Dataset de Departamentos (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/departamentos.json" ## Dataset de Departamentos (No SSL).
+  georefar_municipios_dataset* =
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/municipios.json" ## Dataset de Municipios (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/municipios.json" ## Dataset de Municipios (No SSL).
+  georefar_localidades_dataset* =
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/localidades.json" ## Dataset de Localidades (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/localidades.json" ## Dataset de Localidades (No SSL).
+  georefar_calles_dataset* =
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/calles.json" ## Dataset de Calles (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/calles.json" ## Dataset de Calles (No SSL).
   header_api_data = {"dnt": "1", "accept": "application/vnd.api+json", "content-type": "application/vnd.api+json"}
 let json_api_headers = newHttpHeaders(header_api_data) ## HTTP Headers for JSON APIs.
 
@@ -20,15 +35,18 @@ type
   GeoRefAr* = GeoRefArBase[HttpClient]           ## GeoRefAr API  Sync Client.
   AsyncGeoRefAr* = GeoRefArBase[AsyncHttpClient] ## GeoRefAr API Async Client.
 
-template proxi(this: untyped): untyped =
-  ## Template to use Proxy when its declared.
-  when declared(this.proxy): this.proxy else: nil
+template clientify(this: GeoRefAr | AsyncGeoRefAr): untyped =
+  ## Build & inject basic HTTP Client with Proxy and Timeout.
+  var client {.inject.} =
+    when this is AsyncGeoRefAr: newAsyncHttpClient(
+      proxy = when declared(this.proxy): this.proxy else: nil, userAgent="")
+    else: newHttpClient(
+      timeout = when declared(this.timeout): this.timeout.int * 1_000 else: -1,
+      proxy = when declared(this.proxy): this.proxy else: nil, userAgent="")
+  client.headers = json_api_headers
 
 proc apicall(this: GeoRefAr | AsyncGeoRefAr, api_url: string, cueri: JsonNode): Future[JsonNode] {.multisync.} =
-  let client =
-    when this is AsyncGeoRefAr: newAsyncHttpClient(proxy=proxi(this))
-    else: newHttpClient(timeout=this.timeout.int * 1000, proxy=proxi(this))
-  client.headers = json_api_headers
+  clientify(this)
   let response =
     when this is AsyncGeoRefAr: await client.post(api_url, body = $cueri)
     else: client.post(api_url, body = $cueri)
@@ -62,6 +80,46 @@ proc ubicacion*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNod
   ## Permite realizar una georreferenciacion inversa para varios puntos, informando cuales unidades territoriales contienen cada uno.
   result = await this.apicall(georefar_api_url & "ubicacion", cueri)
 
+proc provincias_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+  ## Permite descargar el listado completo desde la API.
+  clientify(this)
+  when this is AsyncGeoRefAr:
+    await client.downloadFile(georefar_provincias_dataset, filename)
+  else:
+    client.downloadFile(georefar_provincias_dataset, filename)
+
+proc departamentos_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+  ## Permite descargar el listado completo desde la API.
+  clientify(this)
+  when this is AsyncGeoRefAr:
+    await client.downloadFile(georefar_departamentos_dataset, filename)
+  else:
+    client.downloadFile(georefar_departamentos_dataset, filename)
+
+proc municipios_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+  ## Permite descargar el listado completo desde la API.
+  clientify(this)
+  when this is AsyncGeoRefAr:
+    await client.downloadFile(georefar_municipios_dataset, filename)
+  else:
+    client.downloadFile(georefar_municipios_dataset, filename)
+
+proc localidades_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+  ## Permite descargar el listado completo desde la API.
+  clientify(this)
+  when this is AsyncGeoRefAr:
+    await client.downloadFile(georefar_localidades_dataset, filename)
+  else:
+    client.downloadFile(georefar_localidades_dataset, filename)
+
+proc calles_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+  ## Permite descargar el listado completo desde la API.
+  clientify(this)
+  when this is AsyncGeoRefAr:
+    await client.downloadFile(georefar_calles_dataset, filename)
+  else:
+    client.downloadFile(georefar_calles_dataset, filename)
+
 
 
 
@@ -69,7 +127,7 @@ proc ubicacion*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNod
 runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documentacion.
   import asyncdispatch, json
   ## Sync client.
-  let georefar_client = GeoRefAr(timeout: 9)  # Timeout en Segundos.
+  let georefar_client = GeoRefAr(timeout: 99)  # Timeout en Segundos.
   ## Las consultas en formato JSON son copiadas desde la Documentacion de la API.
   var consulta = %* {
     "provincias": [
@@ -141,6 +199,13 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
   }
   echo georefar_client.ubicacion(consulta).pretty
 
+  # Whole Dataset Downloads (takes a lot of time to complete!).
+  # georefar_client.provincias_dataset("provincias.json")
+  # georefar_client.departamentos_dataset("departamentos.json")
+  # georefar_client.municipios_dataset("municipios.json")
+  # georefar_client.localidades_dataset("localidades.json")
+  # georefar_client.calles_dataset("calles.json")
+
   ## Async client.
   proc async_georefar() {.async.} =
     let
@@ -152,15 +217,30 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
 
 
 when is_main_module and defined(release):
+  {.passL: "-s", passC: "-flto -ffast-math", optimization: size.}
   import parseopt, terminal, random
+  const helpy = """
+  GeoRef Argentina MultiSync API Client App.
+
+  La API del Servicio de Normalizacion de Datos Geograficos,
+  permite normalizar y codificar los nombres de unidades territoriales de Argentina
+  (provincias, departamentos, municipios y localidades) y de sus calles,
+  asi como ubicar coordenadas dentro de ellas.
+  Para mas informacion y ayuda ver la Documentacion.
+
+  👑 https://github.com/juancarlospaco/nim-georefar#nim-georefar 👑
+
+  Uso (Spanish):
+  ./georefar --color --provincias '{"provincias": [{"id": "82"}]}'
+  """
   var endpoint: string
   for tipoDeClave, clave, valor in getopt():
     case tipoDeClave
     of cmdShortOption, cmdLongOption:
       case clave
-      of "version":             quit("0.1.0", 0)
+      of "version":             quit("0.1.8", 0)
       of "license", "licencia": quit("MIT", 0)
-      of "help", "ayuda":       quit("""georefar --color --provincias '{"provincias": [{"id": "82"}]}'""", 0)
+      of "help", "ayuda":       quit(helpy, 0)
       of "provincias", "departamentos", "municipios", "localidades", "calles", "direcciones", "ubicacion":
         endpoint = clave
       of "color":
