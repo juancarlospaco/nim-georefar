@@ -107,6 +107,14 @@ proc async_georefar() {.async.} =
 
 wait_for async_georefar()
 
+
+# Whole Dataset Downloads (takes a lot of time to complete!).
+georefar_client.provincias_dataset("provincias.json")
+georefar_client.departamentos_dataset("departamentos.json")
+georefar_client.municipios_dataset("municipios.json")
+georefar_client.localidades_dataset("localidades.json")
+georefar_client.calles_dataset("calles.json")
+
 # Ver la Doc para mas API Calls...
 ```
 
