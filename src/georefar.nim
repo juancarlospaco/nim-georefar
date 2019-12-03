@@ -7,26 +7,26 @@
 import asyncdispatch, httpclient, json
 
 const
-  georefar_api_url* =
+  georefarApiUrl* =
     when defined(ssl): "https://apis.datos.gob.ar/georef/api/"                   ## Base API URL for all API calls (SSL).
     else: "http://apis.datos.gob.ar/georef/api/"                                 ## Base API URL for all API calls (No SSL).
-  georefar_provincias_dataset* =
+  georefarProvinciasDataset* =
     when defined(ssl): "https://apis.datos.gob.ar/georef/api/provincias.json"    ## Dataset de Provincias (SSL).
     else: "http://apis.datos.gob.ar/georef/api/provincias.json"                  ## Dataset de Provincias (No SSL).
-  georefar_departamentos_dataset* =
+  georefarDepartamentosDataset* =
     when defined(ssl): "https://apis.datos.gob.ar/georef/api/departamentos.json" ## Dataset de Departamentos (SSL).
     else: "http://apis.datos.gob.ar/georef/api/departamentos.json"               ## Dataset de Departamentos (No SSL).
-  georefar_municipios_dataset* =
+  georefarMunicipiosDataset* =
     when defined(ssl): "https://apis.datos.gob.ar/georef/api/municipios.json"    ## Dataset de Municipios (SSL).
     else: "http://apis.datos.gob.ar/georef/api/municipios.json"                  ## Dataset de Municipios (No SSL).
-  georefar_localidades_dataset* =
+  georefarLocalidadesDataset* =
     when defined(ssl): "https://apis.datos.gob.ar/georef/api/localidades.json"   ## Dataset de Localidades (SSL).
     else: "http://apis.datos.gob.ar/georef/api/localidades.json"                 ## Dataset de Localidades (No SSL).
-  georefar_calles_dataset* =
+  georefarCallesDataset* =
     when defined(ssl): "https://apis.datos.gob.ar/georef/api/calles.json"        ## Dataset de Calles (SSL).
     else: "http://apis.datos.gob.ar/georef/api/calles.json"                      ## Dataset de Calles (No SSL).
-  header_api_data = {"dnt": "1", "accept": "application/vnd.api+json", "content-type": "application/vnd.api+json"}
-let json_api_headers = newHttpHeaders(header_api_data) ## HTTP Headers for JSON APIs.
+  headerApiData = {"dnt": "1", "accept": "application/vnd.api+json", "content-type": "application/vnd.api+json"}
+let jsonApiHeaders = newHttpHeaders(headerApiData) ## HTTP Headers for JSON APIs.
 
 type
   GeoRefArBase*[HttpType] = object ## Base Object
@@ -43,7 +43,7 @@ template clientify(this: GeoRefAr | AsyncGeoRefAr): untyped =
     else: newHttpClient(
       timeout = when declared(this.timeout): this.timeout.int * 1_000 else: -1,
       proxy = when declared(this.proxy): this.proxy else: nil, userAgent = "")
-  client.headers = json_api_headers
+  client.headers = jsonApiHeaders
 
 proc apicall(this: GeoRefAr | AsyncGeoRefAr, api_url: string, cueri: JsonNode): Future[JsonNode] {.multisync.} =
   clientify(this)
@@ -54,71 +54,71 @@ proc apicall(this: GeoRefAr | AsyncGeoRefAr, api_url: string, cueri: JsonNode): 
 
 proc provincias*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
   ## Permite realizar varias busquedas sobre el listado de provincias en simultaneo.
-  result = await this.apicall(georefar_api_url & "provincias", cueri)
+  result = await this.apicall(georefarApiUrl & "provincias", cueri)
 
 proc departamentos*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
   ## Permite realizar varias busquedas sobre el listado de departamentos en simultaneo.
-  result = await this.apicall(georefar_api_url & "departamentos", cueri)
+  result = await this.apicall(georefarApiUrl & "departamentos", cueri)
 
 proc municipios*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
   ## Permite realizar varias busquedas sobre el listado de municipios en simultaneo.
-  result = await this.apicall(georefar_api_url & "municipios", cueri)
+  result = await this.apicall(georefarApiUrl & "municipios", cueri)
 
 proc localidades*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
   ## Permite realizar varias búsquedas sobre el listado de localidades en simultáneo.
-  result = await this.apicall(georefar_api_url & "localidades", cueri)
+  result = await this.apicall(georefarApiUrl & "localidades", cueri)
 
 proc calles*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
   ## Permite realizar varias busquedas sobre el listado de vias de circulacion en simultaneo.
-  result = await this.apicall(georefar_api_url & "calles", cueri)
+  result = await this.apicall(georefarApiUrl & "calles", cueri)
 
 proc direcciones*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
   ## Permite normalizar un lote de direcciones utilizando el listado de vias de circulacion.
-  result = await this.apicall(georefar_api_url & "direcciones", cueri)
+  result = await this.apicall(georefarApiUrl & "direcciones", cueri)
 
 proc ubicacion*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
   ## Permite realizar una georreferenciacion inversa para varios puntos, informando cuales unidades territoriales contienen cada uno.
-  result = await this.apicall(georefar_api_url & "ubicacion", cueri)
+  result = await this.apicall(georefarApiUrl & "ubicacion", cueri)
 
-proc provincias_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc provinciasDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr:
-    await client.downloadFile(georefar_provincias_dataset, filename)
+    await client.downloadFile(georefarProvinciasDataset, filename)
   else:
-    client.downloadFile(georefar_provincias_dataset, filename)
+    client.downloadFile(georefarProvinciasDataset, filename)
 
-proc departamentos_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc departamentosDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr:
-    await client.downloadFile(georefar_departamentos_dataset, filename)
+    await client.downloadFile(georefarDepartamentosDataset, filename)
   else:
-    client.downloadFile(georefar_departamentos_dataset, filename)
+    client.downloadFile(georefarDepartamentosDataset, filename)
 
-proc municipios_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc municipiosDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr:
-    await client.downloadFile(georefar_municipios_dataset, filename)
+    await client.downloadFile(georefarMunicipiosDataset, filename)
   else:
-    client.downloadFile(georefar_municipios_dataset, filename)
+    client.downloadFile(georefarMunicipiosDataset, filename)
 
-proc localidades_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc localidadesDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr:
-    await client.downloadFile(georefar_localidades_dataset, filename)
+    await client.downloadFile(georefarLocalidadesDataset, filename)
   else:
-    client.downloadFile(georefar_localidades_dataset, filename)
+    client.downloadFile(georefarLocalidadesDataset, filename)
 
-proc calles_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc callesDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr:
-    await client.downloadFile(georefar_calles_dataset, filename)
+    await client.downloadFile(georefarCallesDataset, filename)
   else:
-    client.downloadFile(georefar_calles_dataset, filename)
+    client.downloadFile(georefarCallesDataset, filename)
 
 
 
@@ -216,7 +216,7 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
   wait_for async_georefar()
 
 
-when is_main_module and defined(release):
+when isMainModule and defined(release):
   {.passL: "-s", passC: "-flto -ffast-math", optimization: size.}
   import parseopt, terminal, random
   const helpy = """
