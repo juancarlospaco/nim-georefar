@@ -8,41 +8,41 @@ import asyncdispatch, httpclient, json
 
 const
   georefar_api_url* =
-    when defined(ssl): "https://apis.datos.gob.ar/georef/api/" ## Base API URL for all API calls (SSL).
-    else: "http://apis.datos.gob.ar/georef/api/" ## Base API URL for all API calls (No SSL).
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/"                   ## Base API URL for all API calls (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/"                                 ## Base API URL for all API calls (No SSL).
   georefar_provincias_dataset* =
-    when defined(ssl): "https://apis.datos.gob.ar/georef/api/provincias.json" ## Dataset de Provincias (SSL).
-    else: "http://apis.datos.gob.ar/georef/api/provincias.json" ## Dataset de Provincias (No SSL).
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/provincias.json"    ## Dataset de Provincias (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/provincias.json"                  ## Dataset de Provincias (No SSL).
   georefar_departamentos_dataset* =
     when defined(ssl): "https://apis.datos.gob.ar/georef/api/departamentos.json" ## Dataset de Departamentos (SSL).
-    else: "http://apis.datos.gob.ar/georef/api/departamentos.json" ## Dataset de Departamentos (No SSL).
+    else: "http://apis.datos.gob.ar/georef/api/departamentos.json"               ## Dataset de Departamentos (No SSL).
   georefar_municipios_dataset* =
-    when defined(ssl): "https://apis.datos.gob.ar/georef/api/municipios.json" ## Dataset de Municipios (SSL).
-    else: "http://apis.datos.gob.ar/georef/api/municipios.json" ## Dataset de Municipios (No SSL).
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/municipios.json"    ## Dataset de Municipios (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/municipios.json"                  ## Dataset de Municipios (No SSL).
   georefar_localidades_dataset* =
-    when defined(ssl): "https://apis.datos.gob.ar/georef/api/localidades.json" ## Dataset de Localidades (SSL).
-    else: "http://apis.datos.gob.ar/georef/api/localidades.json" ## Dataset de Localidades (No SSL).
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/localidades.json"   ## Dataset de Localidades (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/localidades.json"                 ## Dataset de Localidades (No SSL).
   georefar_calles_dataset* =
-    when defined(ssl): "https://apis.datos.gob.ar/georef/api/calles.json" ## Dataset de Calles (SSL).
-    else: "http://apis.datos.gob.ar/georef/api/calles.json" ## Dataset de Calles (No SSL).
+    when defined(ssl): "https://apis.datos.gob.ar/georef/api/calles.json"        ## Dataset de Calles (SSL).
+    else: "http://apis.datos.gob.ar/georef/api/calles.json"                      ## Dataset de Calles (No SSL).
   header_api_data = {"dnt": "1", "accept": "application/vnd.api+json", "content-type": "application/vnd.api+json"}
 let json_api_headers = newHttpHeaders(header_api_data) ## HTTP Headers for JSON APIs.
 
 type
-  GeoRefArBase*[HttpType] = object  ## Base Object
-    proxy*: Proxy  ## Network IPv4 / IPv6 Proxy support, Proxy type.
-    timeout*: byte  ## Timeout Seconds for API Calls, byte type, 0~255.
-  GeoRefAr* = GeoRefArBase[HttpClient]           ## GeoRefAr API  Sync Client.
+  GeoRefArBase*[HttpType] = object ## Base Object
+    proxy*: Proxy                  ## Network IPv4 / IPv6 Proxy support, Proxy type.
+    timeout*: byte                 ## Timeout Seconds for API Calls, byte type, 0~255.
+  GeoRefAr* = GeoRefArBase[HttpClient] ## GeoRefAr API  Sync Client.
   AsyncGeoRefAr* = GeoRefArBase[AsyncHttpClient] ## GeoRefAr API Async Client.
 
 template clientify(this: GeoRefAr | AsyncGeoRefAr): untyped =
   ## Build & inject basic HTTP Client with Proxy and Timeout.
   var client {.inject.} =
     when this is AsyncGeoRefAr: newAsyncHttpClient(
-      proxy = when declared(this.proxy): this.proxy else: nil, userAgent="")
+      proxy = when declared(this.proxy): this.proxy else: nil, userAgent = "")
     else: newHttpClient(
       timeout = when declared(this.timeout): this.timeout.int * 1_000 else: -1,
-      proxy = when declared(this.proxy): this.proxy else: nil, userAgent="")
+      proxy = when declared(this.proxy): this.proxy else: nil, userAgent = "")
   client.headers = json_api_headers
 
 proc apicall(this: GeoRefAr | AsyncGeoRefAr, api_url: string, cueri: JsonNode): Future[JsonNode] {.multisync.} =
@@ -127,7 +127,7 @@ proc calles_dataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discard
 runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documentacion.
   import asyncdispatch, json
   ## Sync client.
-  let georefar_client = GeoRefAr(timeout: 99)  # Timeout en Segundos.
+  let georefar_client = GeoRefAr(timeout: 99) # Timeout en Segundos.
   ## Las consultas en formato JSON son copiadas desde la Documentacion de la API.
   var consulta = %* {
     "provincias": [
@@ -238,9 +238,9 @@ when is_main_module and defined(release):
     case tipoDeClave
     of cmdShortOption, cmdLongOption:
       case clave
-      of "version":             quit("0.1.8", 0)
+      of "version": quit("0.1.8", 0)
       of "license", "licencia": quit("MIT", 0)
-      of "help", "ayuda":       quit(helpy, 0)
+      of "help", "ayuda": quit(helpy, 0)
       of "provincias", "departamentos", "municipios", "localidades", "calles", "direcciones", "ubicacion":
         endpoint = clave
       of "color":
@@ -250,13 +250,13 @@ when is_main_module and defined(release):
     of cmdArgument:
       let clientito = GeoRefAr(timeout: 99)
       case endpoint
-      of "provincias":    echo clientito.provincias(parse_json(clave)).pretty
+      of "provincias": echo clientito.provincias(parse_json(clave)).pretty
       of "departamentos": echo clientito.departamentos(parse_json(clave)).pretty
-      of "municipios":    echo clientito.municipios(parse_json(clave)).pretty
-      of "localidades":   echo clientito.localidades(parse_json(clave)).pretty
-      of "calles":        echo clientito.calles(parse_json(clave)).pretty
-      of "direcciones":   echo clientito.direcciones(parse_json(clave)).pretty
-      of "ubicacion":     echo clientito.ubicacion(parse_json(clave)).pretty
+      of "municipios": echo clientito.municipios(parse_json(clave)).pretty
+      of "localidades": echo clientito.localidades(parse_json(clave)).pretty
+      of "calles": echo clientito.calles(parse_json(clave)).pretty
+      of "direcciones": echo clientito.direcciones(parse_json(clave)).pretty
+      of "ubicacion": echo clientito.ubicacion(parse_json(clave)).pretty
       else: quit("""Parametro a buscar debe ser alguno de los endpoint de la API:
       provincias,departamentos,municipios,localidades,calles,direcciones,ubicacion""", 1)
     of cmdEnd: quit("Los Parametros son incorrectos, ver Ayuda con --ayuda", 1)
