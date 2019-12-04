@@ -179,7 +179,7 @@ when isMainModule and defined(release):
     case tipoDeClave
     of cmdShortOption, cmdLongOption:
       case clave
-      of "version": quit("0.1.8", 0)
+      of "version": quit("0.2.0", 0)
       of "license", "licencia": quit("MIT", 0)
       of "help", "ayuda": quit(helpy, 0)
       of "provincias", "departamentos", "municipios", "localidades", "localidadesCensales", "asentamientos", "calles", "direcciones", "ubicacion":
