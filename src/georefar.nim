@@ -38,8 +38,7 @@ type
 template clientify(this: GeoRefAr | AsyncGeoRefAr): untyped =
   ## Build & inject basic HTTP Client with Proxy and Timeout.
   var client {.inject.} =
-    when this is AsyncGeoRefAr: newAsyncHttpClient(
-      proxy = when declared(this.proxy): this.proxy else: nil, userAgent = "")
+    when this is AsyncGeoRefAr: newAsyncHttpClient(proxy = when declared(this.proxy): this.proxy else: nil, userAgent = "")
     else: newHttpClient(
       timeout = when declared(this.timeout): this.timeout.int * 1_000 else: -1,
       proxy = when declared(this.proxy): this.proxy else: nil, userAgent = "")
@@ -83,42 +82,32 @@ proc ubicacion*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNod
 proc provinciasDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
-  when this is AsyncGeoRefAr:
-    await client.downloadFile(georefarProvinciasDataset, filename)
-  else:
-    client.downloadFile(georefarProvinciasDataset, filename)
+  when this is AsyncGeoRefAr: await client.downloadFile(georefarProvinciasDataset, filename)
+  else: client.downloadFile(georefarProvinciasDataset, filename)
 
 proc departamentosDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
-  when this is AsyncGeoRefAr:
-    await client.downloadFile(georefarDepartamentosDataset, filename)
-  else:
-    client.downloadFile(georefarDepartamentosDataset, filename)
+  when this is AsyncGeoRefAr: await client.downloadFile(georefarDepartamentosDataset, filename)
+  else: client.downloadFile(georefarDepartamentosDataset, filename)
 
 proc municipiosDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
-  when this is AsyncGeoRefAr:
-    await client.downloadFile(georefarMunicipiosDataset, filename)
-  else:
-    client.downloadFile(georefarMunicipiosDataset, filename)
+  when this is AsyncGeoRefAr: await client.downloadFile(georefarMunicipiosDataset, filename)
+  else: client.downloadFile(georefarMunicipiosDataset, filename)
 
 proc localidadesDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
-  when this is AsyncGeoRefAr:
-    await client.downloadFile(georefarLocalidadesDataset, filename)
-  else:
-    client.downloadFile(georefarLocalidadesDataset, filename)
+  when this is AsyncGeoRefAr: await client.downloadFile(georefarLocalidadesDataset, filename)
+  else: client.downloadFile(georefarLocalidadesDataset, filename)
 
 proc callesDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
-  when this is AsyncGeoRefAr:
-    await client.downloadFile(georefarCallesDataset, filename)
-  else:
-    client.downloadFile(georefarCallesDataset, filename)
+  when this is AsyncGeoRefAr: await client.downloadFile(georefarCallesDataset, filename)
+  else: client.downloadFile(georefarCallesDataset, filename)
 
 
 
@@ -129,76 +118,26 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
   ## Sync client.
   let georefar_client = GeoRefAr(timeout: 99) # Timeout en Segundos.
   ## Las consultas en formato JSON son copiadas desde la Documentacion de la API.
-  var consulta = %* {
-    "provincias": [
-      {
-        "id": "82"
-      }
-    ]
-  }
+  var consulta = %* {"provincias": [{"id": "82"}]}
   echo georefar_client.provincias(consulta).pretty
 
-  consulta = %* {
-    "departamentos": [
-      {
-        "provincia": "Santa Fe"
-      }
-    ]
-  }
+  consulta = %* {"departamentos": [{"provincia": "Santa Fe"}]}
   echo georefar_client.departamentos(consulta).pretty
 
-  consulta = %* {
-    "municipios": [
-      {
-        "provincia": "Santa Fe"
-      }
-    ]
-  }
+  consulta = %* {"municipios": [{"provincia": "Santa Fe"}]}
   echo georefar_client.municipios(consulta).pretty
 
-  consulta = %* {
-    "localidades": [
-      {
-        "provincia": "Santa Fe",
-        "departamento": "Rosario",
-        "municipio": "Granadero Baigorria"
-      }
-    ]
-  }
+  consulta = %* {"localidades": [{"provincia": "Santa Fe", "departamento": "Rosario", "municipio": "Granadero Baigorria"}]}
   echo georefar_client.localidades(consulta).pretty
 
-  consulta = %* {
-    "calles": [
-      {
-        "provincia": "Santa Fe",
-        "departamento": "Rosario"
-      }
-    ]
-  }
+  consulta = %* {"calles": [{"provincia": "Santa Fe", "departamento": "Rosario"}]}
   echo georefar_client.calles(consulta).pretty
 
-  consulta = %* {
-    "direcciones": [
-      {
-        "direccion": "Urquiza 400",
-        "tipo": "calle",
-        "provincia": "Santa Fe",
-        "departamento": "Rosario"
-      }
-    ]
-  }
+  consulta = %* {"direcciones": [{"direccion": "Urquiza 400", "tipo": "calle", "provincia": "Santa Fe", "departamento": "Rosario"}]}
   echo georefar_client.direcciones(consulta).pretty
 
-  consulta = %* {
-    "ubicaciones": [
-      {
-        "lat": -32.8551545,
-        "lon": -60.697636
-      }
-    ]
-  }
+  consulta = %* {"ubicaciones": [{"lat": -32.8551545, "lon": -60.697636}]}
   echo georefar_client.ubicacion(consulta).pretty
-
   # Whole Dataset Downloads (takes a lot of time to complete!).
   # georefar_client.provincias_dataset("provincias.json")
   # georefar_client.departamentos_dataset("departamentos.json")
@@ -207,13 +146,10 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
   # georefar_client.calles_dataset("calles.json")
 
   ## Async client.
-  proc async_georefar() {.async.} =
-    let
-      async_georefar_client = AsyncGeoRefAr(timeout: 9)
-      async_response = await async_georefar_client.ubicacion(consulta)
-    echo async_response.pretty
-
+  proc async_georefar() {.async.} = echo pretty(await AsyncGeoRefAr(timeout: 9).ubicacion(consulta))
   wait_for async_georefar()
+
+
 
 
 when isMainModule and defined(release):
