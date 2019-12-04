@@ -63,6 +63,14 @@ proc municipios*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNo
   ## Permite realizar varias busquedas sobre el listado de municipios en simultaneo.
   result = await this.apicall(georefarApiUrl & "municipios", cueri)
 
+proc localidadesCensales*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
+  ## Permite realizar varias busquedas sobre el listado de municipios en simultaneo.
+  result = await this.apicall(georefarApiUrl & "localidades-censales", cueri)
+
+proc asentamientos*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
+  ## Permite realizar varias busquedas sobre el listado de municipios en simultaneo.
+  result = await this.apicall(georefarApiUrl & "asentamientos", cueri)
+
 proc localidades*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNode] {.multisync.} =
   ## Permite realizar varias búsquedas sobre el listado de localidades en simultáneo.
   result = await this.apicall(georefarApiUrl & "localidades", cueri)
