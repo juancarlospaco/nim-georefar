@@ -161,7 +161,7 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
 
 
 when isMainModule and defined(release):
-  {.passL: "-s", passC: "-flto -ffast-math", optimization: size.}
+  {.passL: "-s", passC: "-flto -ffast-math -march=native -mtune=native -fno-ident -fsingle-precision-constant", optimization: size.}
   import parseopt, terminal, random
   const helpy = """GeoRef Argentina MultiSync API Client App.
 
