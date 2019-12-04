@@ -185,7 +185,7 @@ when isMainModule and defined(release):
       of "version": quit("0.1.8", 0)
       of "license", "licencia": quit("MIT", 0)
       of "help", "ayuda": quit(helpy, 0)
-      of "provincias", "departamentos", "municipios", "localidades", "calles", "direcciones", "ubicacion":
+      of "provincias", "departamentos", "municipios", "localidades", "localidadesCensales", "asentamientos", "calles", "direcciones", "ubicacion":
         endpoint = clave
       of "color":
         randomize()
@@ -198,6 +198,8 @@ when isMainModule and defined(release):
       of "departamentos": echo clientito.departamentos(parse_json(clave)).pretty
       of "municipios": echo clientito.municipios(parse_json(clave)).pretty
       of "localidades": echo clientito.localidades(parse_json(clave)).pretty
+      of "localidadesCensales": echo clientito.localidadesCensales(parse_json(clave)).pretty
+      of "asentamientos": echo clientito.asentamientos(parse_json(clave)).pretty
       of "calles": echo clientito.calles(parse_json(clave)).pretty
       of "direcciones": echo clientito.direcciones(parse_json(clave)).pretty
       of "ubicacion": echo clientito.ubicacion(parse_json(clave)).pretty
