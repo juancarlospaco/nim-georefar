@@ -163,8 +163,7 @@ runnableExamples: # "nim doc georefar.nim" corre estos ejemplos y genera documen
 when isMainModule and defined(release):
   {.passL: "-s", passC: "-flto -ffast-math", optimization: size.}
   import parseopt, terminal, random
-  const helpy = """
-  GeoRef Argentina MultiSync API Client App.
+  const helpy = """GeoRef Argentina MultiSync API Client App.
 
   La API del Servicio de Normalizacion de Datos Geograficos,
   permite normalizar y codificar los nombres de unidades territoriales de Argentina
@@ -174,9 +173,7 @@ when isMainModule and defined(release):
 
   👑 https://github.com/juancarlospaco/nim-georefar#nim-georefar 👑
 
-  Uso (Spanish):
-  ./georefar --color --provincias '{"provincias": [{"id": "82"}]}'
-  """
+  Uso (Spanish): ./georefar --color --provincias '{"provincias": [{"id": "82"}]}' """
   var endpoint: string
   for tipoDeClave, clave, valor in getopt():
     case tipoDeClave
