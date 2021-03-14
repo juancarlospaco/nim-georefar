@@ -4,4 +4,4 @@ description   = "GeoRef Argentina Government MultiSync API Client for Nim"
 license       = "MIT"
 srcDir        = "src"
 
-requires "nim >= 1.0.4"
+requires "nim >= 1.4.2"
