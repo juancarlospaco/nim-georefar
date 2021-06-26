@@ -87,31 +87,31 @@ proc ubicacion*(this: GeoRefAr | AsyncGeoRefAr, cueri: JsonNode): Future[JsonNod
   ## Permite realizar una georreferenciacion inversa para varios puntos, informando cuales unidades territoriales contienen cada uno.
   result = await this.apicall(georefarApiUrl & "ubicacion", cueri)
 
-proc provinciasDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc provinciasDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr: await client.downloadFile(georefarProvinciasDataset, filename)
   else: client.downloadFile(georefarProvinciasDataset, filename)
 
-proc departamentosDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc departamentosDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr: await client.downloadFile(georefarDepartamentosDataset, filename)
   else: client.downloadFile(georefarDepartamentosDataset, filename)
 
-proc municipiosDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc municipiosDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr: await client.downloadFile(georefarMunicipiosDataset, filename)
   else: client.downloadFile(georefarMunicipiosDataset, filename)
 
-proc localidadesDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc localidadesDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr: await client.downloadFile(georefarLocalidadesDataset, filename)
   else: client.downloadFile(georefarLocalidadesDataset, filename)
 
-proc callesDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.discardable, multisync.} =
+proc callesDataset*(this: GeoRefAr | AsyncGeoRefAr, filename: string) {.multisync.} =
   ## Permite descargar el listado completo desde la API.
   clientify(this)
   when this is AsyncGeoRefAr: await client.downloadFile(georefarCallesDataset, filename)
